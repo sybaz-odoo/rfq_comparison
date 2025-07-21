@@ -12,7 +12,7 @@ Usage
 ----------------------------------
 
 Goto Request for Quotation menu in Purchase module.
-Select records as required for comparison then in Action menu select RFQ Comparison.
+                Select records as required for comparison then in Action menu select RFQ Comparison.
 -----------------------------------
 
 Authors
