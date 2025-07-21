@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_purchase_requisition_comparison" model="ir.actions.server">
+            <field name="name">RFQ Comparison</field>
+            <field name="state">code</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+            <field name="binding_view_types">list</field>
+            <field name="code">
+                if records:
+                    action = model.purchase_comparison(records)
+            </field>
+        </record>
+    </data>
+
+</odoo>
