@@ -1,7 +1,7 @@
-Purchase Comparison Chart
+Current Stock Report
 ---------------------------------------
 
-Purchase Comparison Chart showing Purchase Comparison Chart of selected records. Reference and Vendor against products.
+Current Stock Report showing opening and closing balances with received and issues quantity for each product in selected period.
 
 Configuration
 ---------------------------------
@@ -11,8 +11,7 @@ Just install it.
 Usage
 ----------------------------------
 
-Goto Request for Quotation menu in Purchase module.
-Select records as required for comparison then in Action menu select RFQ Comparison.
+Just see product quantity balances with opening, received, issue and closing.
 
 -----------------------------------
 

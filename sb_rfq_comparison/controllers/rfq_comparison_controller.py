@@ -18,7 +18,7 @@ class PurchaseComparison(http.Controller):
             rfq_ids.append(record.id)
 
             # Append FRQ
-            rfq_info.append({'rfq_name': record.name, 'amount': '{:,.0f}'.format(record.amount_untaxed)})
+            rfq_info.append({'rfq_name': record.name, 'amount': '{:,.2f}'.format(record.amount_untaxed)})
 
             # Append supplier
             supplier_ids.append({'sname': record.partner_id.name})
@@ -27,10 +27,10 @@ class PurchaseComparison(http.Controller):
             for line in record.order_line:
                 if line.product_id.id not in product:
                     product[line.product_id.id] = {'product_name': line.product_id.name,
-                                                    'records': {record.id: {'price': '{:,.0f}'.format(line.price_unit), 'uom': line.product_uom.name,'qty': '{:,.2f}'.format(line.product_qty), 'subtotal': '{:,.0f}'.format(line.product_qty*line.price_unit)}}}
+                                                    'records': {record.id: {'price': '{:,.2f}'.format(line.price_unit), 'uom': line.product_uom.name,'qty': '{:,.3f}'.format(line.product_qty), 'subtotal': '{:,.2f}'.format(line.product_qty*line.price_unit)}}}
                 else:
-                    product[line.product_id.id]['records'][record.id] = {'price': '{:,.0f}'.format(line.price_unit), 'uom': line.product_uom.name,
-                                                   'qty': '{:,.2f}'.format(line.product_qty), 'subtotal': '{:,.0f}'.format(line.product_qty*line.price_unit)}
+                    product[line.product_id.id]['records'][record.id] = {'price': '{:,.2f}'.format(line.price_unit), 'uom': line.product_uom.name,
+                                                   'qty': '{:,.3f}'.format(line.product_qty), 'subtotal': '{:,.2f}'.format(line.product_qty*line.price_unit)}
         for rec in product:
             product_data = product[rec]
             product_data['record'] = []
@@ -69,9 +69,11 @@ class PurchaseComparison(http.Controller):
             cell_align1 = workbook.add_format({'align': 'center', 'bold': True, 'font_size': '12', 'border': 1})
             cell_align2 = workbook.add_format({'bg_color': '#CCCCCC', 'align': 'center', 'bold': True, 'font_size': '12', 'border': 1})
             format_qty1 = workbook.add_format({'text_wrap': True, 'align': 'right', 'font_size': '10', 'border': 1, 'num_format': '#,##0.00'})
-            format_qty2 = workbook.add_format({'bg_color': '#CCCCCC', 'text_wrap': True, 'align': 'right', 'font_size': '10', 'border': 1, 'num_format': '#,##0.00'})
+            format_qty2 = workbook.add_format({'bg_color': '#CCCCCC', 'text_wrap': True, 'align': 'right',
+                                               'font_size': '10', 'border': 1, 'num_format': '#,##0.00'})
             format_amount1 = workbook.add_format({'align': 'center', 'bold': True, 'border': 1, 'num_format': '#,##0'})
-            format_amount2 = workbook.add_format({'bg_color': '#CCCCCC','align': 'center', 'bold': True, 'border': 1, 'num_format': '#,##0'})
+            format_amount2 = workbook.add_format({'bg_color': '#CCCCCC', 'align': 'center', 'bold': True, 'border': 1,
+                                                  'num_format': '#,##0.00;(#,##0.00)'})
 
             c = 1
             sheet.set_column(c, c, 35)
@@ -98,10 +100,10 @@ class PurchaseComparison(http.Controller):
 
             r += 1
             c = 1
-            sheet.write(r, c, 'Vendor', cell_format1)
+            sheet.write(r, c, 'Vendor', cell_format2)
             c += 1
             for sname in supplier_ids:
-                sheet.merge_range(r, c, r, c+2, sname['sname'], cell_align1)
+                sheet.merge_range(r, c, r, c+2, sname['sname'], cell_align2)
                 c += 3
 
             r += 1
@@ -119,24 +121,36 @@ class PurchaseComparison(http.Controller):
             r += 1
             c = 1
             for product in values:
-                sheet.write(r, c, product['product_name'], (txt2 if r % 2 == 0 else txt1))
+                sheet.write(r, c, product['product_name'], txt1)
                 c += 1
                 for rec in product['record']:
-                    sheet.write(r, c, rec['qty']+" "+rec['uom'], (txt2 if r % 2 == 0 else txt1))
+                    sheet.write(r, c, rec['qty']+" "+rec['uom'], txt1)
                     c += 1
-                    sheet.write(r, c, rec['price'], (format_qty2 if r % 2 == 0 else format_qty1))
-                    c += 1
-                    sheet.write(r, c, rec['subtotal'], (format_qty2 if r % 2 == 0 else format_qty1))
-                    c += 1
+                    price_str = rec['price']
+                    if price_str:
+                        price = float(price_str.replace(',', ''))
+                        sheet.write_number(r, c, price, format_qty1)
+                    else:
+                        sheet.write_blank(r, c, None, format_qty1)
 
+                    c += 1
+                    subtotal_str = rec['subtotal']
+                    if subtotal_str:
+                        subtotal = float(subtotal_str.replace(',', ''))
+                        sheet.write_number(r, c, subtotal, format_qty1)
+                    else:
+                        sheet.write_blank(r, c, None, format_qty1)
+
+                    c += 1
                 r += 1
                 c = 1
 
             c = 1
-            sheet.write(r, c, 'Total', (format_amount2 if r % 2 == 0 else format_amount1))
+            sheet.write(r, c, 'Total', format_amount2)
             c += 1
             for rfq in rfq_info:
-                sheet.merge_range(r, c, r, c + 2, rfq['amount'], (format_amount2 if r % 2 == 0 else format_amount1))
+                amount = float(rfq['amount'].replace(',', ''))
+                sheet.merge_range(r, c, r, c + 2, amount, format_amount2)
                 c += 3
 
             workbook.close()
