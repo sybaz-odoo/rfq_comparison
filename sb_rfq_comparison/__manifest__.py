@@ -6,9 +6,9 @@
     """,
     "license": "LGPL-3",
     'author': "Sybaz",
-    'website': "https://sybaz.com/",
+    'website': "https://sybaz.com.pk/",
     'category': 'Purchase/Purchase',
-    'version': '17.0.1.0.1',
+    'version': '19.0.1.0.1',
     'depends': ['purchase'],
 
     'data': [
